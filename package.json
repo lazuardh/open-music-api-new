@@ -1,0 +1,27 @@
+{
+  "name": "open-music-api",
+  "version": "1.0.0",
+  "description": "create api with javascript",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ./src/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lazuardh/open-music-api-new.git"
+  },
+  "author": "habiyan lazuard",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lazuardh/open-music-api-new/issues"
+  },
+  "homepage": "https://github.com/lazuardh/open-music-api-new#readme",
+  "dependencies": {
+    "@hapi/hapi": "^21.4.4",
+    "auto-bind": "^1.0.0",
+    "dotenv": "^17.2.3",
+    "joi": "^18.0.1",
+    "nanoid": "^5.1.6"
+  }
+}
