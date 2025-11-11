@@ -13,12 +13,17 @@ const songs = require('./api/songs');
 const SongsService = require('./services/postgress/songsQueryService');
 const songsValidator = require('./validator/songs');
 
+const users = require('./api/users');
+const UsersService = require('./services/postgress/usersQueryService');
+const UsersValidator = require('./validator/users');
+
 const ClientError = require("./exeption/clientError");
 
 
 const init = async () => {
     const albumsService = new AlbumsService(new SongsService());
     const songsService = new SongsService();
+    const usersService = new UsersService();
 
     const host = process.env.HOST || '127.0.0.1';
     const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
@@ -47,6 +52,13 @@ const init = async () => {
         options: {
           service: songsService,
           validator: songsValidator,
+        },
+      },
+      {
+        plugin: users,
+        options: {
+          service: usersService,
+          validator: UsersValidator,
         },
       },
     ]);
