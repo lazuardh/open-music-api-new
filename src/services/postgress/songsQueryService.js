@@ -11,6 +11,22 @@ class SongsService {
 
     async addSong({ title, year, genre, performer, duration, albumId }){
         const id = `song-${nanoid(16)}`;
+        
+        //validasi
+        if (albumId) {
+            const albumQuery = {
+                text: 'SELECT id FROM albums WHERE id = $1',
+                values: [albumId],
+            };
+
+            const albumResult = await this._pool.query(albumQuery);
+
+            if (!albumResult.rows.length) {
+                throw new NotFoundError('Album tidak ditemukan');
+            }
+        } else {
+            
+        }
 
         const query = {
             text: 'INSERT INTO songs VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id',
@@ -26,8 +42,30 @@ class SongsService {
         return result.rows[0].id;
     }
 
-    async getAllSongs(){
-        const result = await this._pool.query('SELECT * FROM songs');
+    async getAllSongs({title, performer} = {}){
+        let baseQuery = 'SELECT id, title, performer FROM songs';
+        const conditions = [];
+        const values = [];
+
+        if (title) {
+            values.push(`%${title}%`);
+            conditions.push(`LOWER(title) LIKE LOWER($${values.length})`);
+        }
+
+        if (performer) {
+            values.push(`%${performer}%`);
+            conditions.push(`LOWER(performer) LIKE LOWER($${values.length})`);
+        }
+
+        if (conditions.length > 0) {
+            baseQuery += ` WHERE ${conditions.join(' AND ')}`;
+        }
+
+        const result = await this._pool.query(baseQuery, values);
+
+        if (result.rows.length === 0) {
+            throw new NotFoundError('Lagu tidak ditemukan');
+        }
 
         return result.rows.map(mapSongsDBToModel);
     }
@@ -46,6 +84,17 @@ class SongsService {
 
         return result.rows.map(mapSongsDBToModel)[0];
     }
+
+    async getSongsByAlbumId(albumId) {
+        const query = {
+            text: 'SELECT id, title, performer FROM songs WHERE "albumId" = $1',
+            values: [albumId],
+        };
+
+        const result = await this._pool.query(query);
+        return result.rows;
+    }
+
 
     async editSongById(id, {title, year, genre, performer, duration, albumId }){
         const query = {

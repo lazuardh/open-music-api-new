@@ -9,4 +9,11 @@ const SongPayloadSchema = Joi.object({
     albumId: Joi.string(),
 });
 
-module.exports =  { SongPayloadSchema };
+const SongsQuerySchema = Joi.object({
+  title: Joi.string().pattern(/[a-zA-Z]/).strict().optional().messages({
+      'string.pattern.base': '"title" harus berupa teks, tidak boleh hanya angka.',
+    }),
+  performer: Joi.string().optional(),
+}).or('title', 'performer').options({convert: false});
+
+module.exports =  { SongPayloadSchema, SongsQuerySchema };

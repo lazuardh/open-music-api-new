@@ -17,7 +17,7 @@ const ClientError = require("./exeption/clientError");
 
 
 const init = async () => {
-    const albumsService = new AlbumsService();
+    const albumsService = new AlbumsService(new SongsService());
     const songsService = new SongsService();
 
     const host = process.env.HOST || '127.0.0.1';

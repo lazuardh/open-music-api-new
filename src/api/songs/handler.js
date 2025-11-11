@@ -24,14 +24,28 @@ class SongsHandler {
     return response;
   }
 
-  async getSongsHandler() {
+  async getSongsHandler(request) {
+    const { title, performer } = request.query;
+    
+    if (title || performer) {
+      this._validator.validateSongQuery(request.query);
+      const songs = await this._service.getAllSongs({ title, performer });
+
+      return {
+        status: "success",
+        data: {
+          songs: songs,
+        },
+      };
+    }
+
     const songs = await this._service.getAllSongs();
     const songsMapped = songs.map((song) => ({
       id: song.id,
       title: song.title,
       performer: song.performer,
     }));
-    
+
     return {
       status: "success",
       data: {
