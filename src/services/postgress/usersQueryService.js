@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 
 const InvariantError = require('../../exeption/invariantError');
 const NotFoundError = require('../../exeption/notFoundError');
+const AuthenticationError = require('../../exeption/authenticationError');
 
 class UsersQueryService {
   constructor() {
@@ -57,6 +58,28 @@ class UsersQueryService {
     }
 
     return result.rows[0];
+  }
+
+  async verifyCredential(username, password) {
+    const query = {
+      text: 'SELECT id, username, password FROM users WHERE username = $1',
+      values: [username],
+    };
+
+    const result = await this._pool.query(query);
+
+    if (!result.rows.length) {
+      throw new AuthenticationError('Kredential yang anda berikan salah.');
+    }
+
+    const { id, password: hashedPassword } = result.rows[0];
+    const matcheed = await bcrypt.compare(password, hashedPassword);
+
+    if (!matcheed) {
+      throw new AuthenticationError('Kredential yang anda berikan salah');
+    }
+
+    return id;
   }
 }
 
