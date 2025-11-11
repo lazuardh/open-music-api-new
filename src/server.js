@@ -1,5 +1,9 @@
 require('dotenv').config();
+
 const Hapi = require('@hapi/hapi');
+const Vision = require('@hapi/vision');
+const Handlebars = require('handlebars');
+const path = require("path");
 
 const albums = require('./api/albums');
 const AlbumsService = require('./services/postgress/albumsQueryService');
@@ -46,6 +50,26 @@ const init = async () => {
         },
       },
     ]);
+
+    await server.register(Vision);
+    server.views({
+      engines: {
+        hbs: Handlebars,
+      },
+      path: path.join(__dirname, "..", "/views"),
+    });
+
+    server.route({
+    method: "GET",
+    path: "/",
+    handler: (request, h) => {
+      return h.view("index", {
+        title: "Open-musik Api v1 with Hapi.js",
+        message:
+          "Ini adalah template rendering engine menggunakan handlebars dan plugin vision",
+      });
+    },
+  });
 
     //menambahkan onPreResponse untuk handle custom error
     server.ext("onPreResponse", (request, h) => {
