@@ -33,7 +33,7 @@ class PlaylistsHandler {
         const playlistsMapped = playlists.map((playlist) => ({
             id: playlist.id,
             name: playlist.name,
-            owner: playlist.owner,
+            username: playlist.username,
         }));
 
         return {
@@ -59,16 +59,22 @@ class PlaylistsHandler {
 
     async postSongToPlaylistHandler(request, h) {
         this._validator.validatePostSongToPlaylistPayload(request.payload);
+        
         const { id: userId } = request.auth.credentials;
         const { id: playlistId } = request.params;
         const { songId } = request.payload;
-
+        
+        await this._service.verifyQuerySongs(songId);
         await this._service.verifyPlaylistAccess(playlistId, userId);
-        await this._service.addSongToPlaylists(playlistId, songId);
+    
+        const playlistSongId = await this._service.addSongToPlaylists(playlistId, songId);
 
         const response = h.response({
             status: 'success',
             message: 'Lagu berhasil ditambahkan ke playlist.',
+            data: {
+                playlistSongId,
+            }
         });
 
         response.code(201);
