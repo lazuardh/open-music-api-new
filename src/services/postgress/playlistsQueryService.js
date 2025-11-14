@@ -58,7 +58,7 @@ class PlaylistsQueryService {
 
         const result = await this._pool.query(query);
 
-        if (!result.rowCount.length) {
+        if (!result.rows.length) {
             throw new NotFoundError('playlist tidak ditemukan.');
         }
 
@@ -117,6 +117,7 @@ class PlaylistsQueryService {
             values: [playlistId]
         }
 
+
         const songResult = await this._pool.query(querySong);
 
         return {
@@ -134,13 +135,13 @@ class PlaylistsQueryService {
         const result = await this._pool.query(query);
 
         if (!result.rows.length) {
-            throw new NotFoundError('playlist tidak ditemukan.');
+            throw new NotFoundError('Lagu tidak ditemukan di dalam playlist.');
         }
     }
 
     async verifyPlaylistAccess(playlistId, userId) {
         const playlistQuery = {
-        text: 'SELECT * FROM playlists WHERE id = $1',
+        text: 'SELECT owner FROM playlists WHERE id = $1',
         values: [playlistId],
         };
 
@@ -155,6 +156,7 @@ class PlaylistsQueryService {
             throw new AuthorizationError('Anda tidak berhak mengakses resource ini');
         }
     }
+
 
     async verifyQuerySongs(songId) {
         const querySongs = {

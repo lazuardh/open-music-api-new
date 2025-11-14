@@ -1,4 +1,5 @@
 const autoBind = require('auto-bind');
+const NotFoundError = require('../../exeption/notFoundError');
 
 class PlaylistsHandler {
     constructor(service, validator) {
