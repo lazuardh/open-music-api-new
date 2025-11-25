@@ -23,6 +23,7 @@
     "@hapi/hapi": "^21.4.4",
     "@hapi/jwt": "^3.2.1",
     "@hapi/vision": "^7.0.3",
+    "amqplib": "^0.10.9",
     "auto-bind": "^1.0.0",
     "bcrypt": "^6.0.0",
     "dotenv": "^17.2.3",
@@ -30,6 +31,7 @@
     "joi": "^18.0.1",
     "nanoid": "^5.1.6",
     "node-pg-migrate": "^8.0.3",
+    "nodemailer": "^7.0.10",
     "pg": "^8.16.3"
   },
   "devDependencies": {

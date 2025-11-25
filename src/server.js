@@ -27,9 +27,11 @@ const playlists = require('./api/playlists');
 const PlaylistsService = require('./services/postgress/playlistsQueryService');
 const PlaylistsValidator = require('./validator/playlists');
 
-const ClientError = require("./exeption/clientError");
-const { verify } = require('crypto');
+const _exports = require('./api/exports');
+const ProducerService = require('./services/rabbitMQ/ProducerService');
+const ExportsValidator = require('./validator/exports');
 
+const ClientError = require("./exeption/clientError");
 
 const init = async () => {
     const albumsService = new AlbumsService(new SongsService());
@@ -113,6 +115,13 @@ const init = async () => {
           validator: PlaylistsValidator,
         },
       },
+      {
+        plugin: _exports,
+        options: {
+          service: ProducerService,
+          validator: ExportsValidator,
+        },
+      },
     ]);
 
     await server.register(Vision);
@@ -173,5 +182,10 @@ const init = async () => {
     await server.start();
      console.log(`Server berjalan pada ${server.info.uri}`);
 };
+
+process.on('unhandledRejection', (err) => {
+  console.error(err);
+  process.exit(1);
+});
 
 init();
