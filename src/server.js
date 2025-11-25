@@ -32,6 +32,7 @@ const ProducerService = require('./services/rabbitMQ/ProducerService');
 const ExportsValidator = require('./validator/exports');
 
 const ClientError = require("./exeption/clientError");
+const PlaylistsQueryService = require('./services/postgress/playlistsQueryService');
 
 const init = async () => {
     const albumsService = new AlbumsService(new SongsService());
@@ -120,6 +121,7 @@ const init = async () => {
         options: {
           service: ProducerService,
           validator: ExportsValidator,
+          playlistsService: playlistsService,
         },
       },
     ]);
