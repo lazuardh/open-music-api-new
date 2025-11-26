@@ -21,6 +21,7 @@
   "homepage": "https://github.com/lazuardh/open-music-api-new#readme",
   "dependencies": {
     "@hapi/hapi": "^21.4.4",
+    "@hapi/inert": "^7.1.0",
     "@hapi/jwt": "^3.2.1",
     "@hapi/vision": "^7.0.3",
     "amqplib": "^0.10.9",

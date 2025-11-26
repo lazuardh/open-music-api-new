@@ -5,6 +5,7 @@ const Vision = require('@hapi/vision');
 const Handlebars = require('handlebars');
 const path = require("path");
 const Jwt = require('@hapi/jwt');
+const Inert = require('@hapi/inert');
 
 const albums = require('./api/albums');
 const AlbumsService = require('./services/postgress/albumsQueryService');
@@ -31,6 +32,10 @@ const _exports = require('./api/exports');
 const ProducerService = require('./services/rabbitMQ/ProducerService');
 const ExportsValidator = require('./validator/exports');
 
+const uploads = require('./api/uploads');
+const StorageService = require('./services/storage/StorageService');
+const UploadsValidator = require('./validator/uploads');
+
 const ClientError = require("./exeption/clientError");
 const PlaylistsQueryService = require('./services/postgress/playlistsQueryService');
 
@@ -41,6 +46,7 @@ const init = async () => {
     const usersQueryService = new UsersService();
     const authenticationsQueryService = new AuthenticationsQueryService();
     const playlistsService = new PlaylistsService();
+    const storageService = new StorageService(path.resolve(__dirname, 'api/uploads/file/images'));
 
     const host = process.env.HOST || '127.0.0.1';
     const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
@@ -58,6 +64,9 @@ const init = async () => {
     await server.register([
       {
         plugin: Jwt,
+      },
+      {
+        plugin: Inert,
       },
     ]);
 
@@ -122,6 +131,14 @@ const init = async () => {
           service: ProducerService,
           validator: ExportsValidator,
           playlistsService: playlistsService,
+        },
+      },
+      {
+        plugin: uploads,
+        options: {
+          service: storageService,
+          validator: UploadsValidator,
+          albumsQueryService: albumsService,
         },
       },
     ]);

@@ -43,10 +43,12 @@ class AlbumsService {
         const songs = await this._songsService.getSongsByAlbumId(id);
 
         return {
-            ...album,
+            id: album.id,
+            name: album.name,
+            year: album.year,
+            coverUrl: album.cover_url,
             songs,
         }
-        // return result.rows.map(mapDBToModel)[0];
     }
 
     async editAlbumById(id, {name, year}){
@@ -73,6 +75,28 @@ class AlbumsService {
         if (!result.rows.length) {
             throw new NotFoundError('Gagal menghapus album. Id tidak ditemukan');
         }
+    }
+
+    async verifyAlbumId(id) {
+        const query = {
+            text: 'SELECT * FROM albums WHERE id = $1',
+            values: [id],
+        }
+
+        const verify = await this._pool.query(query);
+
+        if (!verify.rows.length) {
+            throw new NotFoundError('album tidak ditemukan.');
+        }
+    }
+
+    async updateCoverAlbums(id, coverUrl) {
+        const query = {
+            text: 'UPDATE albums SET cover_url = $1 WHERE id =$2',
+            values: [coverUrl, id],
+        }
+
+        await this._pool.query(query);
     }
 }
 
