@@ -4,7 +4,6 @@ class AlbumLikesHandler {
     constructor(userAlbumLikesQueryService, albumsService) {
         this._userAlbumLikesQueryService = userAlbumLikesQueryService;
         this._albumsService = albumsService;
-
         autoBind(this);
     }
 
@@ -17,7 +16,7 @@ class AlbumLikesHandler {
         await this._userAlbumLikesQueryService.likeAlbum(albumId, userId);
 
         const response = h.response({
-            success: 'success',
+            status: 'success',
             message: 'album berhasil disukai',
         });
 
@@ -25,18 +24,22 @@ class AlbumLikesHandler {
         return response;
     }
 
-    async getLikesAlbumHandlerById(request) {
+    async getLikesAlbumHandlerById(request, h) {
          const { id: albumId } = request.params;
 
         await this._albumsService.verifyAlbumId(albumId);
-        const likes = await this._userAlbumLikesQueryService.getAlbumLikes(albumId);
+        const { likes, source} = await this._userAlbumLikesQueryService.getAlbumLikes(albumId);
 
-         return {
-            success: 'success',
-            data: {
-                likes,
-            },
-        };
+        const response = h.response({
+            status: 'success',
+            data: { likes },
+        });
+
+        if (source === 'cache') {
+            response.header('X-Data-Source', 'cache');
+        }
+
+        return response;
     }
 
     async deleteLikeAlbumHandler(request) {

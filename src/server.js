@@ -42,14 +42,17 @@ const PlaylistsQueryService = require('./services/postgress/playlistsQueryServic
 const _likes = require('./api/album_likes');
 const UserAlbumLikesQueryService = require('./services/postgress/UserAlbumLikesQueryService');
 
+const CacheService = require('./services/redis/CacheService');
+
 const init = async () => {
+    const cacheService = new CacheService();
     const albumsService = new AlbumsService(new SongsService());
     const songsService = new SongsService();
     const usersService = new UsersService();
     const usersQueryService = new UsersService();
     const authenticationsQueryService = new AuthenticationsQueryService();
     const playlistsService = new PlaylistsService();
-    const userAlbumLikesQueryService = new UserAlbumLikesQueryService();
+    const userAlbumLikesQueryService = new UserAlbumLikesQueryService(cacheService);
     const storageService = new StorageService(path.resolve(__dirname, 'api/uploads/file/images'));
 
     const host = process.env.HOST || '127.0.0.1';
