@@ -1,0 +1,70 @@
+const { Pool } = require('pg');
+const { nanoid } = require('nanoid');
+
+const InvariantError = require('../../exeption/invariantError');
+const NotFoundError = require('../../exeption/notFoundError');
+
+class UserAlbumLikesQueryService {
+    constructor() {
+        this._pool = new Pool();
+    }
+
+    async _checkedAlreadyLikes(albumId, userId) {
+        const query = {
+            text: 'SELECT id FROM user_album_likes WHERE user_id = $1 AND album_id = $2',
+            values: [userId, albumId],
+        };
+
+        const alreadyLikes = await this._pool.query(query);
+
+        if (alreadyLikes.rows.length > 0) {
+            throw new InvariantError('kamu sudah menyukai album ini.');
+        }
+
+    }
+
+    async likeAlbum(albumId, userId) {
+        await this._checkedAlreadyLikes(albumId, userId);
+
+        const id = `likes-${nanoid(16)}`;
+
+        const query = {
+            text: 'INSERT INTO user_album_likes (id, user_id, album_id) VALUES ($1, $2, $3) RETURNING id',
+            values: [id, userId, albumId],
+        };
+
+        const result = await this._pool.query(query);
+
+        if (!result.rows.length) {
+            throw new NotFoundError('gagal menambahkan album ke dalam favorite.');
+        }
+
+        return result.rows[0].id;
+    }
+
+    async unLikeAlbum(albumId, userId){
+        const query = {
+            text: 'DELETE FROM user_album_likes WHERE user_id = $1 AND album_id = $2 RETURNING id',
+            values: [userId, albumId],
+        };
+
+        const result = await this._pool.query(query);
+
+        if (!result.rows.length) {
+            throw new NotFoundError('gagal batal menyukai album. id tidak ditemukan');
+        }
+    }
+
+    async getAlbumLikes(albumId){
+        const query = {
+            text: 'SELECT COUNT(*) AS likes FROM user_album_likes where album_id = $1',
+            values: [albumId],
+        };
+
+        const result = await this._pool.query(query);
+
+        return Number(result.rows[0].likes);
+    }
+}
+
+module.exports = UserAlbumLikesQueryService;

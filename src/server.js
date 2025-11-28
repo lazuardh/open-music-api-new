@@ -39,6 +39,9 @@ const UploadsValidator = require('./validator/uploads');
 const ClientError = require("./exeption/clientError");
 const PlaylistsQueryService = require('./services/postgress/playlistsQueryService');
 
+const _likes = require('./api/album_likes');
+const UserAlbumLikesQueryService = require('./services/postgress/UserAlbumLikesQueryService');
+
 const init = async () => {
     const albumsService = new AlbumsService(new SongsService());
     const songsService = new SongsService();
@@ -46,6 +49,7 @@ const init = async () => {
     const usersQueryService = new UsersService();
     const authenticationsQueryService = new AuthenticationsQueryService();
     const playlistsService = new PlaylistsService();
+    const userAlbumLikesQueryService = new UserAlbumLikesQueryService();
     const storageService = new StorageService(path.resolve(__dirname, 'api/uploads/file/images'));
 
     const host = process.env.HOST || '127.0.0.1';
@@ -139,6 +143,13 @@ const init = async () => {
           service: storageService,
           validator: UploadsValidator,
           albumsQueryService: albumsService,
+        },
+      },
+      {
+        plugin: _likes,
+        options: {
+          userAlbumLikesQueryService: userAlbumLikesQueryService, 
+          albumsService: albumsService,
         },
       },
     ]);
